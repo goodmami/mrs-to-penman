@@ -8,12 +8,12 @@
             "ARG4-NEQ", "ARG4-EQ", "ARG4-H", "ARG4-HEQ",
             "ARG-NEQ",  "ARG-EQ",  "ARG-H",  "ARG-HEQ",
             "MOD-EQ",
-            "CARG",
             "L-HNDL-H", "L-HNDL-HEQ",
             "R-HNDL-H", "R-HNDL-HEQ",
             "L-INDEX-NEQ", "L-INDEX-EQ",
             "R-INDEX-NEQ", "R-INDEX-EQ",
             "RSTR-H",
+            "carg",
             "lnk"
         ],
         "x": [

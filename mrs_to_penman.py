@@ -31,7 +31,13 @@ def process(items, args):
     for item_id, snt, mrss in items:
         print('# ::id {}\n# ::snt {}'.format(item_id, snt))
         for mrs in mrss:
-            print(make_penman(mrs, args))
+            try:
+                print(make_penman(mrs, args))
+            except penman.penman.EncodeError as ex:
+                print('Item {}\t{}'.format(item_id, str(ex)),
+                      file=sys.stderr)
+                print('()')
+
         print()
 
 
@@ -110,7 +116,7 @@ def make_graph(x, args):
         pred_allow = allow.get('predicate', {})
         ts = [
             t for t in g.triples()
-            if (t.source not in drop and
+            if (preds.get(t.source) not in drop and
                 (t.relation in global_allow or
                  (varsort.get(t.source) == 'x' and t.relation in x_allow) or
                  (varsort.get(t.source) == 'e' and t.relation in e_allow) or

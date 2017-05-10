@@ -24,9 +24,8 @@ and/or `mrs_to_penman.py` commands.
 ./convert-redwoods.sh
 ```
 
-If you want to try different settings, edit `convert-redwoods.sh` and
-use some of the commented-out options at the bottom of the file. See
-below for a description of the options.
+If you want to try different settings, edit `parameters.json` and add or
+remove constraints. See below for a description of the constraints.
 
 # Parsing and Converting New Data
 
@@ -37,18 +36,18 @@ below for a description of the options.
   For Linux:
 
   ```bash
-  wget http://sweaglesw.org/linguistics/ace/download/ace-0.9.24-x86-64.tar.gz -q -O - | tar xz
+  wget http://sweaglesw.org/linguistics/ace/download/ace-0.9.25-x86-64.tar.gz -q -O - | tar xz
   ```
 
   For Mac:
 
   ```bash
-  wget http://sweaglesw.org/linguistics/ace/download/ace-0.9.24-osx.tar.gz -q -O - | tar xz
+  wget http://sweaglesw.org/linguistics/ace/download/ace-0.9.25-osx.tar.gz -q -O - | tar xz
   ```
 
   You can install this to a suitable location by, e.g., moving the
-  `ace-0.9.24/` directory into `/opt/` and by adding
-  `PATH=/opt/ace-0.9.24/:"$PATH"` to `.bashrc`. Alternatively, use the
+  `ace-0.9.25/` directory into `/opt/` and by adding
+  `PATH=/opt/ace-0.9.25/:"$PATH"` to `.bashrc`. Alternatively, use the
   `--ace-binary` option to the `mrs_to_penman.py` command.
 
 * [art](http://sweaglesw.org/linguistics/libtsdb/art) (recommended)
@@ -64,13 +63,13 @@ below for a description of the options.
   For Linux:
 
   ```bash
-  wget http://sweaglesw.org/linguistics/ace/download/erg-1214-x86-64-0.9.24.dat.bz2-q -O - | bunzip2 > erg-1214-0.9.24.dat
+  wget http://sweaglesw.org/linguistics/ace/download/erg-1214-x86-64-0.9.25.dat.bz2-q -O - | bunzip2 > erg-1214-0.9.25.dat
   ```
 
   For Mac:
 
   ```bash
-  wget http://sweaglesw.org/linguistics/ace/download/erg-1214-osx-0.9.24.dat.bz2 -q -O - | bunzip2 > erg-1214-0.9.24.dat
+  wget http://sweaglesw.org/linguistics/ace/download/erg-1214-osx-0.9.25.dat.bz2 -q -O - | bunzip2 > erg-1214-0.9.25.dat
   ```
 
 ## Parse and Convert
@@ -80,13 +79,13 @@ in via stdin or direct `--input` to a file containing sentences. In
 either case, a grammar file is required (e.g. the ERG).
 
 ```bash
-cat sentences.txt | mrs_to_penman.py --grammar erg-1214-0.9.24.dat
+cat sentences.txt | mrs_to_penman.py --grammar erg-1214-0.9.25.dat
 ```
 
 or
 
 ```bash
-mrs_to_penman.py --grammar erg-1214-0.9.24.dat --input sentences.txt
+mrs_to_penman.py --grammar erg-1214-0.9.25.dat --input sentences.txt
 ```
 
 If you have a parsed full profile (e.g. using `art`), you can point
@@ -94,7 +93,7 @@ If you have a parsed full profile (e.g. using `art`), you can point
 required in this case.
 
 ```bash
-art -a 'ace -g erg-1214-0.9.24.dat' path/to/profile/
+art -a 'ace -g erg-1214-0.9.25.dat' path/to/profile/
 [..]
 mrs_to_penman.py --input path/to/profile
 ```
@@ -107,7 +106,7 @@ take some time. Use `-n1` (the default) to only unpack the top result
 per input and `--timeout=1` to limit processing to 1 second (if it takes
 longer, no results will be returned for that sentence). These options
 can be specified on `mrs_to_penman.py` or in the `-a` value of `art`
-(e.g.: `art -a 'ace -g erg-1214-0.9.24.dat -n1 --timeout 1' path/to/profile`).
+(e.g.: `art -a 'ace -g erg-1214-0.9.25.dat -n1 --timeout 1' path/to/profile`).
 
 # Options for `mrs_to_penman.py`
 
@@ -116,10 +115,68 @@ can be specified on `mrs_to_penman.py` or in the `-a` value of `art`
     line, and if a directory, directory is a profile; if not given, read
     stdin as though a file
 * `-n` - maximum number of results per input (default: 1)
-* `--properties` - include variable properties
-* `--lnk` - include lnk (surface alignment) values (e.g. `:lnk "<0:5>"`
-    means characters 0 to 5)
-* `--udef-q` - include default quantifiers
+* `--parameters` - path to a JSON file for conversion parameters
 * `--ace-binary` - path to the ACE binary (default: ace)
 * `--timeout` - time to allow for parsing each item, in seconds
     (default: no limit)
+
+# Conversion Parameters
+
+The `--parameters` option takes a path to a JSON file with information
+used to customize the PENMAN graphs written by the tool. There are two
+main ways of doing this: (1) allowing (whitelisting) relations, and (2)
+dropping (blacklisting) entire nodes. If no parameters file is given,
+then all possible information is encoded in the graphs.
+
+```json
+{
+  "allow_relations": { ... },
+  "drop_nodes": [ ... ]
+}
+```
+
+Allowing relations has four subcategories: (a) global allow, (b) allow
+for individuals ("x"; nouny things), (c) allow for eventualities ("e";
+verby things), and (d) allow for specific node types. For (a)--(c), the
+value is a simple list of relations that are allowed for that category.
+For (d), the value is a mapping of node types to lists of relations.
+
+```json
+{
+  "allow_relations": {
+    "global": [
+      "ARG1-NEQ", "ARG1-EQ", ...
+    ],
+    "x": [
+      "NUM", ...
+    ],
+    "e": [
+      "TENSE", ...
+    ],
+    "predicate": {
+      "pron": [
+        "PERS", "NUM", "GEND", ...
+      ],
+      ...
+    }
+    }
+  }
+}
+```
+
+Dropping nodes takes a simple list of node types. Any triple with a
+source or target anchored in a node of that type is dropped.
+
+```json
+{
+  "drop_nodes": [
+    "udef_q",
+    "pronoun_q"
+  ]
+}
+```
+
+It's possible that some parameter values could result in a graph that is
+disconnected. In these cases, the graph will not be serialized (and
+you should see an error message). Note that it's also possible to have a
+disconnected graph originally.
