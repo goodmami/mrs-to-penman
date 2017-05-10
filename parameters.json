@@ -1,0 +1,40 @@
+{
+    "allow_relations": {
+        "global": [
+            "predicate",
+            "ARG1-NEQ", "ARG1-EQ", "ARG1-H", "ARG1-HEQ",
+            "ARG2-NEQ", "ARG2-EQ", "ARG2-H", "ARG2-HEQ",
+            "ARG3-NEQ", "ARG3-EQ", "ARG3-H", "ARG3-HEQ",
+            "ARG4-NEQ", "ARG4-EQ", "ARG4-H", "ARG4-HEQ",
+            "ARG-NEQ",  "ARG-EQ",  "ARG-H",  "ARG-HEQ",
+            "MOD-EQ",
+            "CARG",
+            "L-HNDL-H", "L-HNDL-HEQ",
+            "R-HNDL-H", "R-HNDL-HEQ",
+            "L-INDEX-NEQ", "L-INDEX-EQ",
+            "R-INDEX-NEQ", "R-INDEX-EQ",
+            "RSTR-H",
+            "lnk"
+        ],
+        "x": [
+            "num"
+        ],
+        "e": [
+            "tense"
+        ],
+        "predicate": {
+            "pron": [
+                "pers",
+                "num",
+                "gend",
+                "pt"
+            ]
+        }
+    },
+    "drop_nodes": [
+        "udef_q",
+        "pronoun_q",
+        "number_q",
+        "proper_q"
+    ]
+}

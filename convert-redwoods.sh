@@ -57,9 +57,6 @@ for ts in ${testsuites[*]}; do
     echo "Converting $base/$ts" >&2
     python3 mrs_to_penman.py \
         -i "$base/$ts" \
+        -p parameters.json \
         > out/$ts.txt 2>err.txt
-        # add these options above if desired
-        # --properties \
-        # --lnk \
-        # --udef-q \
 done
