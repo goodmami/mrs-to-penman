@@ -2,6 +2,7 @@
 
 import sys
 import os
+import re
 import argparse
 import json
 
@@ -10,6 +11,7 @@ from delphin.mrs import xmrs, simplemrs, penman
 from delphin.mrs.components import var_sort
 from delphin import itsdb
 
+Triple = penman.penman.Triple
 codec = penman.XMRSCodec(indent=2)
 
 def run(args):
@@ -124,8 +126,30 @@ def make_graph(x, args):
         ]
         top = g.top if g.top in [t.source for t in ts] else None
         g = codec.triples_to_graph(ts, top=top)
+        if params.get('substitute_attribute_value', {}):
+            g = _substitute_attrval(
+                g,
+                params['substitute_attribute_value'],
+                params['default_attribute_value']
+            )
 
     return g
+
+def _substitute_attrval(g, subs, default_value):
+    attrs = set(g.attributes())
+    ts = []
+    for t in g.triples():
+        if t not in attrs or t.relation not in subs:
+            ts.append(t)
+        else:
+            val = str(t.target)
+            for match, sub in subs[t.relation]:
+                val = re.sub(match, sub, val)
+            if not val:
+                val = default_value
+            ts.append(Triple(t.source, t.relation, val, t.inverted))
+    return codec.triples_to_graph(ts, top=g.top)
+
 
 def main():
     argparser = argparse.ArgumentParser()

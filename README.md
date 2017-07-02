@@ -123,15 +123,18 @@ can be specified on `mrs_to_penman.py` or in the `-a` value of `art`
 # Conversion Parameters
 
 The `--parameters` option takes a path to a JSON file with information
-used to customize the PENMAN graphs written by the tool. There are two
-main ways of doing this: (1) allowing (whitelisting) relations, and (2)
-dropping (blacklisting) entire nodes. If no parameters file is given,
-then all possible information is encoded in the graphs.
+used to customize the PENMAN graphs written by the tool. There are three
+main ways of doing this: (1) allowing (whitelisting) relations, (2)
+dropping (blacklisting) entire nodes, and (3) modifying attribute values
+with regular expressions. If no parameters file is given, then all
+possible information is encoded in the graphs.
 
 ```json
 {
   "allow_relations": { ... },
-  "drop_nodes": [ ... ]
+  "drop_nodes": [ ... ],
+  "substitute_attribute_value": { ... },
+  "default_attribute_value": "..."
 }
 ```
 
@@ -175,6 +178,25 @@ source or target anchored in a node of that type is dropped.
   ]
 }
 ```
+
+Attribute value substitutions have a key for a relation, then a list of
+(match, substitution) pairs to apply in order. The pairs are processed
+as regular expressions, so regular expression operators, including
+backreferences, are allowed. Character escapes need to be
+doubly-escaped. Because an empty string for an attribute value can cause
+a malformed graph, the `default_attribute_value` key should specify what
+value to use in the case that substitutions delete the entire value.
+
+```json
+{
+  "substitute_attribute_value": {
+    "predicate": [
+      ["\\(", "["],
+      ["\\)", "]"],
+    ]
+  },
+  "default_attribute_value": "..."
+}
 
 It's possible that some parameter values could result in a graph that is
 disconnected. In these cases, the graph will not be serialized (and

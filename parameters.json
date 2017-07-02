@@ -36,5 +36,12 @@
         "pronoun_q",
         "number_q",
         "proper_q"
-    ]
+    ],
+    "substitute_attribute_value": {
+        "predicate": [
+            ["\\(", "["],
+            ["\\)", "]"]
+        ]
+    },
+    "default_attribute_value": "..."
 }
