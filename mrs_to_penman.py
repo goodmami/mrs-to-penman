@@ -46,7 +46,7 @@ def process(items, args):
 def parse_input(in_fh, args):
     cmdargs = ['-n', str(args.n)]
     if args.timeout is not None:
-        cmdargs.append(['--timeout', str(args.timeout)])
+        cmdargs.extend(['--timeout', str(args.timeout)])
 
     with ace.AceParser(
             args.grammar,
