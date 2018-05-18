@@ -32,7 +32,7 @@ def run(args):
 def process(items, args):
     for item_id, snt, mrss in items:
         print('# ::id {}\n# ::snt {}'.format(item_id, snt))
-        for mrs in mrss:
+        for mrs in mrss[:args.n]:
             try:
                 print(make_penman(mrs, args))
             except penman.penman.EncodeError as ex:
@@ -72,19 +72,30 @@ def parse_input(in_fh, args):
 
 def read_profile(f, args):
     p = itsdb.ItsdbProfile(f)
+    mrs_dataspec = args
     inputs = dict((r['i-id'], r['i-input']) for r in p.read_table('item'))
     cur_id, mrss = None, []
-    for row in p.join('parse', 'result'):
-        mrs = simplemrs.loads_one(row['result:mrs'])
+
+    if p.exists('p-result'):
+        rows = p.read_table('p-result')
+        id_spec = 'i-id'
+        mrs_spec = 'mrs'
+    else:
+        rows = p.join('parse', 'result')
+        id_spec = 'parse:i-id'
+        mrs_spec = 'result:mrs'
+
+    for row in rows:
+        mrs = simplemrs.loads_one(row[mrs_spec])
 
         if cur_id is None:
-            cur_id = row['parse:i-id']
+            cur_id = row[id_spec]
 
-        if cur_id == row['parse:i-id']:
+        if cur_id == row[id_spec]:
             mrss.append(mrs)
         else:
             yield (cur_id, inputs[cur_id], mrss)
-            cur_id, mrss = row['parse:i-id'], [mrs]
+            cur_id, mrss = row[id_spec], [mrs]
 
     if mrss:
         yield (cur_id, inputs[cur_id], mrss)
